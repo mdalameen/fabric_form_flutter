@@ -9,10 +9,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Fabric Dyanmic Form',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          appBarTheme: AppBarTheme(brightness: Brightness.dark),
+          primarySwatch: Colors.blue,
+          primaryColor: Colors.blue.shade900),
       home: HomePage(),
     );
   }
