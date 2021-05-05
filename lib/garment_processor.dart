@@ -99,7 +99,7 @@ class GarmentProcessor {
     final pWrapper = _patternControllers[pattern];
     final eWrapper = pWrapper.edgesController[edge];
     eWrapper.dispose();
-    pWrapper.edgesController.remove(eWrapper);
+    pWrapper.edgesController.remove(edge);
     pattern.edges.remove(edge);
     onStateChanged();
   }
