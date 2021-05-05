@@ -11,7 +11,7 @@ class AddButton extends StatelessWidget {
     return InkWell(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        margin: EdgeInsets.only(bottom: 10),
+        margin: EdgeInsets.only(bottom: 12, top: 10),
         decoration: BoxDecoration(
             border: Border.all(color: color),
             borderRadius: BorderRadius.circular(50)),

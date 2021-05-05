@@ -159,7 +159,9 @@ class AppDropDownController<T> extends BaseFormController<T> {
             displayMandatory: displayMandatory,
             key: key,
             onChanged: onChanged,
-            hideLabel: hideLabel);
+            hideLabel: hideLabel) {
+    print(selectedOption);
+  }
 
   @override
   Widget buildWidget({bool addPadding: true, bool isEnabled: true}) {

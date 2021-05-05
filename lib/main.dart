@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Fabric Dyanmic Form',
       theme: ThemeData(
           appBarTheme: AppBarTheme(brightness: Brightness.light),
-          primarySwatch: Colors.yellow,
+          primarySwatch: Colors.blue,
           accentColor: AppColors.blue,
           primaryColor: AppColors.white),
       home: HomePage(),

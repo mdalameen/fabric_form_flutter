@@ -70,9 +70,15 @@ class Fabric {
         'cost': cost,
       };
 
+  @override
+  String toString() => name;
+
   static List<Fabric> copyList(List<Fabric> list) {
     List<Fabric> nList = [];
-    list.map((e) => nList.add(Fabric(e.type, e.name, e.width, e.mass, e.cost)));
+    list.forEach(
+        (e) => nList.add(Fabric(e.type, e.name, e.width, e.mass, e.cost)));
+    print('---> ${list.length}');
+    print('---> ${nList.length}');
     return nList;
   }
 
@@ -105,7 +111,7 @@ class Pattern {
 
   static List<Pattern> copyList(List<Pattern> list) {
     List<Pattern> nList = [];
-    list.map((e) => nList.add(Pattern(
+    list.forEach((e) => nList.add(Pattern(
         e.name, e.fabric, e.areaType, NameValuePair.copyList(e.edges))));
     return nList;
   }
@@ -133,7 +139,7 @@ class NameValuePair {
 
   static List<NameValuePair> copyList(List<NameValuePair> list) {
     List<NameValuePair> nList = [];
-    list.map((e) => nList.add(NameValuePair(e.name, e.value)));
+    list.forEach((e) => nList.add(NameValuePair(e.name, e.value)));
     return nList;
   }
 
@@ -160,7 +166,7 @@ class NameCostPair {
 
   static List<NameCostPair> copyList(List<NameCostPair> list) {
     List<NameCostPair> nList = [];
-    list.map((e) => nList.add(NameCostPair(e.name, e.value)));
+    list.forEach((e) => nList.add(NameCostPair(e.name, e.value)));
     return nList;
   }
 
@@ -187,7 +193,7 @@ class NamePercentPair {
 
   static List<NamePercentPair> copyList(List<NamePercentPair> list) {
     List<NamePercentPair> nList = [];
-    list.map((e) => nList.add(NamePercentPair(e.name, e.value)));
+    list.forEach((e) => nList.add(NamePercentPair(e.name, e.value)));
     return nList;
   }
 
