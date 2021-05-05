@@ -9,6 +9,7 @@ class AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Color color = AppColors.blue;
     return InkWell(
+      onTap: onPressed,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         margin: EdgeInsets.only(bottom: 12, top: 10),

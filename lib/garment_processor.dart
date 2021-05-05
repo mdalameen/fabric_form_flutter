@@ -44,7 +44,148 @@ class GarmentProcessor {
         _extraCostController[extraCost] = _PairWrapper.nameCost(extraCost));
   }
 
+  _displayAlertDialog(String title, String content) {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Text(title),
+              content: Text(content),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Ok',
+                      style: TextStyle(color: AppColors.blue),
+                    ))
+              ],
+            ));
+  }
+
+  _addFabric() {
+    final f = Fabric(data.fabrics.isEmpty, '', 0, 0, 0);
+    data.fabrics.add(f);
+    _fabricControllers[f] = _FabricWrapper(f);
+    onStateChanged();
+  }
+
+  _deleteFabric(Fabric fabric) {
+    bool isUsing = false;
+    for (var v in data.patterns) {
+      isUsing = v.fabric == fabric.name;
+      if (isUsing) break;
+    }
+
+    if (isUsing) {
+      _displayAlertDialog('Cannot delete', 'This field is used by pattern');
+      return;
+    }
+
+    data.fabrics.remove(fabric);
+    _fabricControllers[fabric].dispose();
+    _fabricControllers.remove(fabric);
+    onStateChanged();
+  }
+
+  _addEdge(Pattern pattern) {
+    final v = NameValuePair("", 0);
+    pattern.edges.add(v);
+    final pWrapper = _patternControllers[pattern];
+    pWrapper.edgesController[v] = _PairWrapper.nameValue(v);
+    onStateChanged();
+  }
+
+  _deleteEdge(Pattern pattern, NameValuePair edge) {
+    final pWrapper = _patternControllers[pattern];
+    final eWrapper = pWrapper.edgesController[edge];
+    eWrapper.dispose();
+    pWrapper.edgesController.remove(eWrapper);
+    pattern.edges.remove(edge);
+    onStateChanged();
+  }
+
+  _addPattern() {
+    final p = Pattern(
+        "",
+        data.fabrics.isNotEmpty ? data.fabrics.first.name : null,
+        data.patterns.isEmpty, []);
+    data.patterns.add(p);
+    _patternControllers[p] = _PatternWrapper(p, data.fabrics);
+    onStateChanged();
+  }
+
+  _deletePattern(Pattern pattern) {
+    final pWrapper = _patternControllers[pattern];
+    for (var eWrapper in pWrapper.edgesController.values) eWrapper.dispose();
+    pWrapper.dispose();
+    data.patterns.remove(pattern);
+    onStateChanged();
+  }
+
+  _addAccesory() {
+    final a = NameCostPair("", 0);
+    data.accesories.add(a);
+    _accesoriesController[a] = _PairWrapper.nameCost(a);
+    onStateChanged();
+  }
+
+  _deleteAccesory(NameCostPair pair) {
+    final w = _accesoriesController[pair];
+    w.dispose();
+    _accesoriesController.remove(pair);
+    data.accesories.remove(pair);
+    onStateChanged();
+  }
+
+  _addProductionCost() {
+    final v = NameCostPair("", 0);
+    data.productionCosts.add(v);
+    _productionCostController[v] = _PairWrapper.nameCost(v);
+    onStateChanged();
+  }
+
+  _deleteProductionCost(NameCostPair pair) {
+    final w = _productionCostController[pair];
+    w.dispose();
+    _productionCostController.remove(pair);
+    data.productionCosts.remove(pair);
+    onStateChanged();
+  }
+
+  _addTax() {
+    final v = NamePercentPair("", 0);
+    data.taxes.add(v);
+    _taxesController[v] = _PairWrapper.namePercent(v);
+    onStateChanged();
+  }
+
+  _deleteTax(NamePercentPair tax) {
+    final w = _taxesController[tax];
+    w.dispose();
+    _taxesController.remove(tax);
+    data.taxes.remove(tax);
+    onStateChanged();
+  }
+
+  _addExtraCost() {
+    final v = NameCostPair("", 0);
+    data.extraCosts.add(v);
+    _extraCostController[v] = _PairWrapper.nameCost(v);
+    onStateChanged();
+  }
+
+  _deleteExtraCost(NameCostPair extraCost) {
+    final w = _extraCostController[extraCost];
+    w.dispose();
+    _extraCostController.remove(extraCost);
+    data.extraCosts.remove(extraCost);
+    onStateChanged();
+  }
+
+  VoidCallback onStateChanged;
+  BuildContext context;
   Widget build(BuildContext context, VoidCallback onStateChanged) {
+    this.context = context;
+    this.onStateChanged = onStateChanged;
     return Column(
       children: [
         _buildLineItem(
@@ -63,13 +204,15 @@ class GarmentProcessor {
                       _dualWidget(w.costController.buildWidget(),
                           w.typeController.buildWidget()),
                     ],
-                  ),
-                  () {});
-            }))),
+                  ), () {
+                _deleteFabric(f);
+              });
+            })),
+            _addFabric),
         _buildLineItem(
             _pattern,
             Column(
-                children: List.generate(data.fabrics.length, (index) {
+                children: List.generate(data.patterns.length, (index) {
               Pattern p = data.patterns[index];
               _PatternWrapper w = _patternControllers[p];
               return _fieldsHolder(
@@ -95,35 +238,43 @@ class GarmentProcessor {
                                     )
                                   ],
                                 ),
-                                () {});
+                                () => _deleteEdge(p, pair));
                           }),
-                          () {})
+                          () => _addEdge(p))
                     ],
-                  ),
-                  () {});
-            }))),
+                  ), () {
+                _deletePattern(p);
+              });
+            })),
+            _addPattern),
         _buildPairWraper(
             _accesories,
             data.accesories.map((e) => _accesoriesController[e]).toList(),
-            () {}),
+            _addAccesory,
+            (index) => _deleteAccesory(data.accesories[index])),
         _buildPairWraper(
             _productionCost,
             data.productionCosts
                 .map((e) => _productionCostController[e])
                 .toList(),
-            () {}),
+            _addProductionCost,
+            (index) => _deleteProductionCost(data.productionCosts[index])),
         _buildPairWraper(
-            _taxes, data.taxes.map((e) => _taxesController[e]).toList(), () {}),
+            _taxes,
+            data.taxes.map((e) => _taxesController[e]).toList(),
+            _addTax,
+            (index) => _deleteTax(data.taxes[index])),
         _buildPairWraper(
             _extraCost,
             data.extraCosts.map((e) => _extraCostController[e]).toList(),
-            () {}),
+            _addExtraCost,
+            (index) => _deleteExtraCost(data.extraCosts[index])),
       ],
     );
   }
 
-  _buildPairWraper(
-          String label, List<_PairWrapper> list, VoidCallback onAddPressed) =>
+  _buildPairWraper(String label, List<_PairWrapper> list,
+          VoidCallback onAddPressed, ValueChanged<int> onDeletePressed) =>
       _buildLineItem(
           label,
           Column(
@@ -137,8 +288,9 @@ class GarmentProcessor {
                         w.valueController.buildWidget()),
                   ],
                 ),
-                onAddPressed);
-          })));
+                () => onDeletePressed(index));
+          })),
+          onAddPressed);
 
   _buildNameValueWrapper(
       String label, List<Widget> widgets, VoidCallback onAddPressed) {
@@ -196,7 +348,7 @@ class GarmentProcessor {
     );
   }
 
-  Widget _buildLineItem(String label, Widget child) {
+  Widget _buildLineItem(String label, Widget child, VoidCallback onPressed) {
     Color color = AppColors.blue;
     return Theme(
       data: ThemeData.dark().copyWith(accentColor: AppColors.white),
@@ -223,7 +375,7 @@ class GarmentProcessor {
             alignment: Alignment.center,
             width: double.infinity,
             color: AppColors.white,
-            child: AddButton('Add New', () {}),
+            child: AddButton('Add New', onPressed),
           )
         ],
       ),
