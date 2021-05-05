@@ -1,3 +1,4 @@
+import 'package:fabric_form_flutter/app_colors.dart';
 import 'package:fabric_form_flutter/app_preference.dart';
 import 'package:fabric_form_flutter/data/dummy_data.dart';
 import 'package:fabric_form_flutter/data/model.dart';
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Text(
             'List is empty',
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(color: AppColors.black, fontSize: 20),
             textAlign: TextAlign.center,
           ),
           SizedBox(
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Text(
             'Add model by pressing + in top right corner',
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 18),
+            style: TextStyle(color: AppColors.grey, fontSize: 18),
             textAlign: TextAlign.center,
           )
         ],
@@ -100,12 +101,12 @@ class _HomePageState extends State<HomePage> {
       TextSpan(
         text: 'Fabric: ',
         style: TextStyle(
-          color: Colors.black,
+          color: AppColors.black,
         ),
         children: list
             .map((e) => TextSpan(
                 text: '${s(e)} ${list.last == e ? "" : ", "}',
-                style: TextStyle(color: Colors.grey.shade500)))
+                style: TextStyle(color: AppColors.grey)))
             .toList(),
       ),
       maxLines: 1,

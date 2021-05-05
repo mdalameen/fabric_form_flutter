@@ -1,3 +1,4 @@
+import 'package:fabric_form_flutter/app_colors.dart';
 import 'package:fabric_form_flutter/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           appBarTheme: AppBarTheme(brightness: Brightness.light),
           primarySwatch: Colors.yellow,
-          primaryColor: Colors.white),
+          primaryColor: AppColors.white),
       home: HomePage(),
     );
   }

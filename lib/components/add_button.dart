@@ -1,3 +1,4 @@
+import 'package:fabric_form_flutter/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class AddButton extends StatelessWidget {
@@ -6,7 +7,7 @@ class AddButton extends StatelessWidget {
   AddButton(this.label, this.onPressed);
   @override
   Widget build(BuildContext context) {
-    Color color = Colors.blue.shade900;
+    Color color = AppColors.blue;
     return InkWell(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),

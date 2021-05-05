@@ -1,3 +1,4 @@
+import 'package:fabric_form_flutter/app_colors.dart';
 import 'package:fabric_form_flutter/components/add_button.dart';
 import 'package:flutter/material.dart';
 
@@ -25,30 +26,29 @@ class GarmentProcessor {
   }
 
   Widget _buildLineItem(String label, Widget child) {
-    Color color = Colors.blue.shade900;
+    Color color = AppColors.blue;
     return Theme(
-      data: ThemeData.dark().copyWith(accentColor: Colors.white),
+      data: ThemeData.dark().copyWith(accentColor: AppColors.white),
       child: ExpansionTile(
         maintainState: true,
         initiallyExpanded: true,
         backgroundColor: color,
         collapsedBackgroundColor: color,
         title: Container(
-          // color: Colors.yellow,
-          child: Text(label, style: TextStyle(color: Colors.white)),
+          child: Text(label, style: TextStyle(color: AppColors.white)),
         ),
         trailing: null,
         children: <Widget>[
           Container(
             width: double.infinity,
-            color: Colors.white,
+            color: AppColors.white,
             child: child,
           ),
           Container(
             padding: EdgeInsets.only(right: 10),
             alignment: Alignment.center,
             width: double.infinity,
-            color: Colors.white,
+            color: AppColors.white,
             child: AddButton('Add New', () {}),
           )
         ],
