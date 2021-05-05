@@ -121,7 +121,8 @@ class AppTextController extends BaseFormController<String> {
   @override
   Widget buildWidget(
       {bool addPadding: true, bool isEnabled: true, FocusNode nextNode}) {
-    return AppTextWidget(this, addPadding, isEnabled, nextNode, isNumber);
+    return AppTextWidget(
+        this, addPadding, isEnabled, nextNode, isNumber, onChanged);
   }
 
   @override
@@ -159,13 +160,11 @@ class AppDropDownController<T> extends BaseFormController<T> {
             displayMandatory: displayMandatory,
             key: key,
             onChanged: onChanged,
-            hideLabel: hideLabel) {
-    print(selectedOption);
-  }
+            hideLabel: hideLabel);
 
   @override
   Widget buildWidget({bool addPadding: true, bool isEnabled: true}) {
-    return AppDropDownField(this, addPadding, isEnabled, null);
+    return AppDropDownField(this, addPadding, isEnabled, null, onChanged);
   }
 
   @override

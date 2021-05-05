@@ -1,3 +1,4 @@
+import 'package:fabric_form_flutter/components/form/form_helper.dart';
 import 'package:fabric_form_flutter/garment_processor.dart';
 import 'package:flutter/material.dart';
 import '../data/model.dart';
@@ -31,5 +32,16 @@ class _AddPageState extends State<AddPage> {
     );
   }
 
-  _onSubmit() {}
+  _onSubmit() {
+    FormHelper.unfocus(context);
+    if (_garmentProcessor.validate()) {
+      Navigator.pop(context, _garmentProcessor.getData());
+    }
+  }
+
+  @override
+  void dispose() {
+    _garmentProcessor.dispose();
+    super.dispose();
+  }
 }

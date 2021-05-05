@@ -5,6 +5,7 @@ import 'package:fabric_form_flutter/components/form/app_controllers.dart';
 import 'package:flutter/material.dart';
 
 import './data/model.dart';
+import 'components/form/form_helper.dart';
 
 class GarmentProcessor {
   static const _fabric = 'Fabric';
@@ -29,19 +30,19 @@ class GarmentProcessor {
 
   _initController() {
     _fabricControllers.clear();
-    data.fabrics.forEach(
-        (fabric) => _fabricControllers[fabric] = _FabricWrapper(fabric));
-    data.patterns.forEach((pattern) =>
-        _patternControllers[pattern] = _PatternWrapper(pattern, data.fabrics));
-    data.accesories.forEach((accesory) =>
-        _accesoriesController[accesory] = _PairWrapper.nameCost(accesory));
+    data.fabrics.forEach((fabric) =>
+        _fabricControllers[fabric] = _FabricWrapper(fabric, onStateChanged));
+    data.patterns.forEach((pattern) => _patternControllers[pattern] =
+        _PatternWrapper(pattern, data.fabrics, onStateChanged));
+    data.accesories.forEach((accesory) => _accesoriesController[accesory] =
+        _PairWrapper.nameCost(accesory, onStateChanged));
     data.productionCosts.forEach((productionCost) =>
         _productionCostController[productionCost] =
-            _PairWrapper.nameCost(productionCost));
-    data.taxes.forEach(
-        (tax) => _taxesController[tax] = _PairWrapper.namePercent(tax));
-    data.extraCosts.forEach((extraCost) =>
-        _extraCostController[extraCost] = _PairWrapper.nameCost(extraCost));
+            _PairWrapper.nameCost(productionCost, onStateChanged));
+    data.taxes.forEach((tax) =>
+        _taxesController[tax] = _PairWrapper.namePercent(tax, onStateChanged));
+    data.extraCosts.forEach((extraCost) => _extraCostController[extraCost] =
+        _PairWrapper.nameCost(extraCost, onStateChanged));
   }
 
   _displayAlertDialog(String title, String content) {
@@ -64,7 +65,7 @@ class GarmentProcessor {
   _addFabric() {
     final f = Fabric(data.fabrics.isEmpty, '', 0, 0, 0);
     data.fabrics.add(f);
-    _fabricControllers[f] = _FabricWrapper(f);
+    _fabricControllers[f] = _FabricWrapper(f, onStateChanged);
     onStateChanged();
   }
 
@@ -90,7 +91,7 @@ class GarmentProcessor {
     final v = NameValuePair("", 0);
     pattern.edges.add(v);
     final pWrapper = _patternControllers[pattern];
-    pWrapper.edgesController[v] = _PairWrapper.nameValue(v);
+    pWrapper.edgesController[v] = _PairWrapper.nameValue(v, onStateChanged);
     onStateChanged();
   }
 
@@ -109,7 +110,7 @@ class GarmentProcessor {
         data.fabrics.isNotEmpty ? data.fabrics.first.name : null,
         data.patterns.isEmpty, []);
     data.patterns.add(p);
-    _patternControllers[p] = _PatternWrapper(p, data.fabrics);
+    _patternControllers[p] = _PatternWrapper(p, data.fabrics, onStateChanged);
     onStateChanged();
   }
 
@@ -124,7 +125,7 @@ class GarmentProcessor {
   _addAccesory() {
     final a = NameCostPair("", 0);
     data.accesories.add(a);
-    _accesoriesController[a] = _PairWrapper.nameCost(a);
+    _accesoriesController[a] = _PairWrapper.nameCost(a, onStateChanged);
     onStateChanged();
   }
 
@@ -139,7 +140,7 @@ class GarmentProcessor {
   _addProductionCost() {
     final v = NameCostPair("", 0);
     data.productionCosts.add(v);
-    _productionCostController[v] = _PairWrapper.nameCost(v);
+    _productionCostController[v] = _PairWrapper.nameCost(v, onStateChanged);
     onStateChanged();
   }
 
@@ -154,7 +155,7 @@ class GarmentProcessor {
   _addTax() {
     final v = NamePercentPair("", 0);
     data.taxes.add(v);
-    _taxesController[v] = _PairWrapper.namePercent(v);
+    _taxesController[v] = _PairWrapper.namePercent(v, onStateChanged);
     onStateChanged();
   }
 
@@ -169,7 +170,7 @@ class GarmentProcessor {
   _addExtraCost() {
     final v = NameCostPair("", 0);
     data.extraCosts.add(v);
-    _extraCostController[v] = _PairWrapper.nameCost(v);
+    _extraCostController[v] = _PairWrapper.nameCost(v, onStateChanged);
     onStateChanged();
   }
 
@@ -181,11 +182,15 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  VoidCallback onStateChanged;
+  onStateChanged() {
+    if (_onStateChanged != null) _onStateChanged();
+  }
+
+  VoidCallback _onStateChanged;
   BuildContext context;
   Widget build(BuildContext context, VoidCallback onStateChanged) {
     this.context = context;
-    this.onStateChanged = onStateChanged;
+    this._onStateChanged = onStateChanged;
     return Column(
       children: [
         _buildLineItem(
@@ -382,7 +387,144 @@ class GarmentProcessor {
     );
   }
 
-  dispose() {}
+  List<BaseFormController> _getFabricControllers() {
+    List<BaseFormController> fabricController = <BaseFormController>[];
+    for (var f in _fabricControllers.values) {
+      fabricController.add(f.nameController);
+      fabricController.add(f.typeController);
+      fabricController.add(f.massController);
+      fabricController.add(f.costController);
+      fabricController.add(f.widthController);
+    }
+    return fabricController;
+  }
+
+  List<BaseFormController> _getPatternsController() {
+    List<BaseFormController> patternsController = <BaseFormController>[];
+    for (var p in _patternControllers.values) {
+      patternsController.add(p.nameController);
+      patternsController.add(p.typeController);
+      patternsController.add(p.fabricController);
+      for (var e in p.edgesController.values) {
+        patternsController.add(e.nameController);
+        patternsController.add(e.valueController);
+      }
+    }
+    return patternsController;
+  }
+
+  List<BaseFormController> _getAccesoriesControllers() {
+    List<BaseFormController> accesoriesController = <BaseFormController>[];
+    for (var a in _accesoriesController.values) {
+      accesoriesController.add(a.nameController);
+      accesoriesController.add(a.valueController);
+    }
+    return accesoriesController;
+  }
+
+  List<BaseFormController> _getProductionControllers() {
+    List<BaseFormController> productionController = <BaseFormController>[];
+    for (var a in _productionCostController.values) {
+      productionController.add(a.nameController);
+      productionController.add(a.valueController);
+    }
+    return productionController;
+  }
+
+  List<BaseFormController> _getTaxesControllers() {
+    List<BaseFormController> taxesController = <BaseFormController>[];
+    for (var a in _taxesController.values) {
+      taxesController.add(a.nameController);
+      taxesController.add(a.valueController);
+    }
+    return taxesController;
+  }
+
+  List<BaseFormController> _getExtrasControllers() {
+    List<BaseFormController> extraCostController = <BaseFormController>[];
+    for (var a in _extraCostController.values) {
+      extraCostController.add(a.nameController);
+      extraCostController.add(a.valueController);
+    }
+    return extraCostController;
+  }
+
+  bool validate() {
+    if (!FormHelper.validate(context, _getFabricControllers())) {
+      onStateChanged();
+      _displayAlertDialog(
+          'Invalid Data', 'Please check value in Fabric section');
+      return false;
+    }
+
+    Set fs = Set();
+    for (var f in _fabricControllers.values) {
+      String name = f.nameController.getInput();
+      if (fs.contains(name)) {
+        f.nameController.errorMessage = 'duplicate value found';
+        _displayAlertDialog(
+            'Invalid Data', 'Please check value in Fabric section');
+        onStateChanged();
+        return false;
+      }
+      fs.add(name);
+    }
+
+    if (!FormHelper.validate(context, _getPatternsController())) {
+      onStateChanged();
+      _displayAlertDialog(
+          'Invalid Data', 'Please check value in Pattern section');
+      return false;
+    }
+
+    if (!FormHelper.validate(context, _getAccesoriesControllers())) {
+      onStateChanged();
+      _displayAlertDialog(
+          'Invalid Data', 'Please check value in Accesories section');
+      return false;
+    }
+
+    if (!FormHelper.validate(context, _getProductionControllers())) {
+      onStateChanged();
+      _displayAlertDialog(
+          'Invalid Data', 'Please check value in Production Cost section');
+      return false;
+    }
+
+    if (!FormHelper.validate(context, _getTaxesControllers())) {
+      onStateChanged();
+      _displayAlertDialog(
+          'Invalid Data', 'Please check value in Taxes section');
+      return false;
+    }
+
+    if (!FormHelper.validate(context, _getExtrasControllers())) {
+      onStateChanged();
+      _displayAlertDialog(
+          'Invalid Data', 'Please check value in Extra Cost section');
+      return false;
+    }
+    onStateChanged();
+    return true;
+  }
+
+  Garment getData() => data;
+
+  dispose() {
+    for (var v in [
+      ..._getFabricControllers(),
+      ..._getPatternsController(),
+      ..._getAccesoriesControllers(),
+      ..._getProductionControllers(),
+      ..._getTaxesControllers(),
+      ..._getExtrasControllers()
+    ]) v.dispose();
+  }
+}
+
+String _numberValidator(String number) {
+  var v = double.tryParse(number);
+  return v == null ? 'Enter valid number' : null;
 }
 
 class _FabricWrapper {
@@ -392,17 +534,56 @@ class _FabricWrapper {
   AppTextController massController;
   AppTextController costController;
 
-  _FabricWrapper(Fabric fabric) {
-    typeController =
-        AppSwitchController(label: 'Type', isSelected: fabric.type);
-    nameController = AppTextController(label: 'Name');
+  _FabricWrapper(Fabric fabric, VoidCallback changeState) {
+    typeController = AppSwitchController(
+        label: 'Type',
+        isSelected: fabric.type,
+        displayMandatory: false,
+        isMandatory: true);
+    typeController.onChanged = () {
+      fabric.type = typeController.getInput();
+      changeState();
+    };
+    nameController = AppTextController(
+        label: 'Name', displayMandatory: false, isMandatory: true);
+    nameController.onChanged = () {
+      fabric.name = nameController.getInput();
+      changeState();
+    };
     nameController.controller.text = fabric.name;
-    widthController = AppTextController(label: 'Width', isNumber: true);
+    widthController = AppTextController(
+        label: 'Width',
+        isNumber: true,
+        validate: _numberValidator,
+        displayMandatory: false,
+        isMandatory: true);
     widthController.controller.text = '${fabric.width}';
-    massController = AppTextController(label: 'mass', isNumber: true);
+    widthController.onChanged = () {
+      fabric.width = DataUtil.getDouble(widthController.getInput());
+      changeState();
+    };
+    massController = AppTextController(
+        label: 'mass',
+        isNumber: true,
+        validate: _numberValidator,
+        displayMandatory: false,
+        isMandatory: true);
     massController.controller.text = '${fabric.mass}';
-    costController = AppTextController(label: 'cost', isNumber: true);
+    massController.onChanged = () {
+      fabric.mass = DataUtil.getDouble(massController.getInput());
+      changeState();
+    };
+    costController = AppTextController(
+        label: 'cost',
+        isNumber: true,
+        validate: _numberValidator,
+        displayMandatory: false,
+        isMandatory: true);
     costController.controller.text = '${fabric.cost}';
+    costController.onChanged = () {
+      fabric.cost = DataUtil.getDouble(costController.getInput());
+      changeState();
+    };
   }
 
   dispose() {
@@ -420,20 +601,42 @@ class _PatternWrapper {
   AppDropDownController<Fabric> fabricController;
   Map<NameValuePair, _PairWrapper> edgesController;
 
-  _PatternWrapper(Pattern pattern, List<Fabric> fabrics) {
-    typeController =
-        AppSwitchController(label: 'Area Type', isSelected: pattern.areaType);
-    nameController = AppTextController(label: 'Name');
+  _PatternWrapper(
+      Pattern pattern, List<Fabric> fabrics, VoidCallback setStateChanged) {
+    typeController = AppSwitchController(
+        label: 'Area Type',
+        isSelected: pattern.areaType,
+        displayMandatory: false,
+        isMandatory: true);
+    typeController.onChanged = () {
+      pattern.areaType = typeController.getInput();
+      setStateChanged();
+    };
+
+    nameController = AppTextController(
+        label: 'Name', displayMandatory: false, isMandatory: true);
     nameController.controller.text = pattern.name;
+    nameController.onChanged = () {
+      pattern.name = nameController.getInput();
+      setStateChanged();
+    };
+
     fabricController = AppDropDownController(
         label: 'Fabic',
         options: fabrics,
         selectedOption: fabrics.singleWhere(
             (element) => element.name == pattern.fabric,
-            orElse: () => null));
+            orElse: () => null),
+        displayMandatory: false,
+        isMandatory: true);
+    fabricController.onChanged = () {
+      pattern.fabric = fabricController.getInput()?.name;
+      setStateChanged();
+    };
+
     edgesController = Map();
-    pattern.edges.forEach(
-        (edge) => edgesController[edge] = _PairWrapper.nameValue(edge));
+    pattern.edges.forEach((edge) =>
+        edgesController[edge] = _PairWrapper.nameValue(edge, setStateChanged));
   }
 
   dispose() {
@@ -447,22 +650,46 @@ class _PairWrapper {
   AppTextController nameController;
   AppTextController valueController;
 
-  _PairWrapper(String nameLabel, String valueLabel, String name, double value) {
-    nameController = AppTextController(label: nameLabel);
+  _PairWrapper(
+      String nameLabel,
+      String valueLabel,
+      String name,
+      double value,
+      ValueChanged<String> onNameChanged,
+      ValueChanged<double> onValueChanged,
+      VoidCallback setStateChanged) {
+    nameController = AppTextController(
+        label: nameLabel, displayMandatory: false, isMandatory: true);
     nameController.controller.text = name;
+    nameController.onChanged = () {
+      onNameChanged(nameController.getInput());
+      setStateChanged();
+    };
 
-    valueController = AppTextController(label: valueLabel, isNumber: true);
+    valueController = AppTextController(
+        label: valueLabel,
+        isNumber: true,
+        validate: _numberValidator,
+        displayMandatory: false,
+        isMandatory: true);
     valueController.controller.text = '$value';
+    valueController.onChanged = () {
+      onValueChanged(DataUtil.getDouble(valueController.getInput()));
+      setStateChanged();
+    };
   }
 
-  _PairWrapper.nameValue(NameValuePair pair)
-      : this('Name', 'Value', pair.name, pair.value);
+  _PairWrapper.nameValue(NameValuePair pair, VoidCallback setStateChanged)
+      : this('Name', 'Value', pair.name, pair.value, (s) => pair.name = s,
+            (d) => pair.value = d, setStateChanged);
 
-  _PairWrapper.nameCost(NameCostPair pair)
-      : this('Name', 'Cost', pair.name, pair.value);
+  _PairWrapper.nameCost(NameCostPair pair, VoidCallback setStateChanged)
+      : this('Name', 'Cost', pair.name, pair.value, (s) => pair.name = s,
+            (d) => pair.value = d, setStateChanged);
 
-  _PairWrapper.namePercent(NamePercentPair pair)
-      : this('Name', 'Percent', pair.name, pair.value);
+  _PairWrapper.namePercent(NamePercentPair pair, VoidCallback setStateChanged)
+      : this('Name', 'Percent', pair.name, pair.value, (s) => pair.name = s,
+            (d) => pair.value = d, setStateChanged);
 
   dispose() {
     nameController.dispose();

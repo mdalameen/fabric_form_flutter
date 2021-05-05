@@ -36,8 +36,8 @@ class Garment {
         'patterns': Pattern.getJsonList(patterns),
         'accessories': NameCostPair.getJsonList(accesories),
         'production_cost': NameCostPair.getJsonList(productionCosts),
-        'taxes': NamePercentPair.getList(taxes),
-        'extra_cost': NameCostPair.getList(extraCosts),
+        'taxes': NamePercentPair.getJsonList(taxes),
+        'extra_cost': NameCostPair.getJsonList(extraCosts),
       };
 
   static List<Garment> getList(List list) =>
@@ -56,14 +56,14 @@ class Fabric {
   Fabric(this.type, this.name, this.width, this.mass, this.cost);
 
   Fabric.fromJson(Map<String, dynamic> map)
-      : type = _bool(map['type']),
+      : type = DataUtil.getBool(map['type']),
         name = map['name'],
-        width = _double(map['width']),
-        mass = _double(map['mass']),
-        cost = _double(map['cost']);
+        width = DataUtil.getDouble(map['width']),
+        mass = DataUtil.getDouble(map['mass']),
+        cost = DataUtil.getDouble(map['cost']);
 
   Map<String, dynamic> toJson() => {
-        'type': type,
+        'type': DataUtil.getInt(type),
         'name': name,
         'width': width,
         'mass': mass,
@@ -77,8 +77,7 @@ class Fabric {
     List<Fabric> nList = [];
     list.forEach(
         (e) => nList.add(Fabric(e.type, e.name, e.width, e.mass, e.cost)));
-    print('---> ${list.length}');
-    print('---> ${nList.length}');
+
     return nList;
   }
 
@@ -99,13 +98,13 @@ class Pattern {
   Pattern.fromJson(Map<String, dynamic> map)
       : name = map['name'],
         fabric = map['fabric'],
-        areaType = _bool(map['area_type']),
+        areaType = DataUtil.getBool(map['area_type']),
         edges = NameValuePair.getList(map['edges']);
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'fabric': fabric,
-        'area_type': areaType,
+        'area_type': DataUtil.getInt(areaType),
         'edges': NameValuePair.getJsonList(edges)
       };
 
@@ -130,7 +129,7 @@ class NameValuePair {
 
   NameValuePair.fromJson(Map<String, dynamic> map)
       : name = map['name'],
-        value = _double(map['value']);
+        value = DataUtil.getDouble(map['value']);
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -157,7 +156,7 @@ class NameCostPair {
 
   NameCostPair.fromJson(Map<String, dynamic> map)
       : name = map['name'],
-        value = _double(map['cost']);
+        value = DataUtil.getDouble(map['cost']);
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -184,7 +183,7 @@ class NamePercentPair {
 
   NamePercentPair.fromJson(Map<String, dynamic> map)
       : name = map['name'],
-        value = _double(map['percentage']);
+        value = DataUtil.getDouble(map['percentage']);
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -203,21 +202,37 @@ class NamePercentPair {
   static List getJsonList(List<NamePercentPair> list) => _getJsonList(list);
 }
 
-double _double(var v) {
-  if (v != null) {
-    if (v is int) return v.toDouble();
-    if (v is double) return v.toDouble();
+class DataUtil {
+  static getDouble(var v) {
+    if (v != null) {
+      if (v is int) return v.toDouble();
+      if (v is double) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+    }
+    return null;
   }
-  return null;
-}
 
-bool _bool(var v) {
-  if (v != null) {
-    if (v is bool) return v;
-    if (v is int) return v == 1;
-    if (v is double) return v == 1.0;
+  static bool getBool(var v) {
+    if (v != null) {
+      if (v is bool) return v;
+      if (v is int) return v == 1;
+      if (v is double) return v == 1.0;
+      if (v is String && (<String>['true', 'false'].contains(v.toLowerCase())))
+        return v.toLowerCase() == 'true';
+      if (v is String) return double.tryParse(v) == 1;
+    }
+    return null;
   }
-  return null;
+
+  static int getInt(var v) {
+    if (v != null) {
+      if (v is bool) return v ? 1 : 0;
+      if (v is int) return v;
+      if (v is double) return v.toInt();
+      if (v is String) return int.tryParse(v);
+    }
+    return null;
+  }
 }
 
 List _getJsonList(List list) {

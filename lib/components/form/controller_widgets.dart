@@ -10,8 +10,9 @@ class AppTextWidget extends StatefulWidget {
   final bool isEnabled;
   final bool isNumberOnly;
   final FocusNode nextNode;
+  final VoidCallback onChanged;
   AppTextWidget(this.controller, this.addPadding, this.isEnabled, this.nextNode,
-      this.isNumberOnly);
+      this.isNumberOnly, this.onChanged);
   @override
   _TextWidgetState createState() => _TextWidgetState();
 }
@@ -30,6 +31,9 @@ class _TextWidgetState extends State<AppTextWidget> {
       widget.controller,
       widget.addPadding,
       TextField(
+        onChanged: (s) {
+          if (widget.onChanged != null) widget.onChanged();
+        },
         obscureText: widget.controller.isPassword && !isPasswordDisplaying,
         focusNode: widget.controller.focusNode,
         controller: widget.controller.controller,
@@ -82,12 +86,14 @@ class AppDropDownField<T> extends StatefulWidget {
   final bool addPadding;
   final bool isEnabled;
   final FocusNode nextNode;
+  final VoidCallback onChanged;
 
   AppDropDownField(
     this.controller,
     this.addPadding,
     this.isEnabled,
     this.nextNode,
+    this.onChanged,
   );
 
   @override
@@ -126,6 +132,7 @@ class _AppDropDownFieldState<T> extends State<AppDropDownField> {
   }
 
   _onChanged(T t) {
+    if (widget.onChanged != null) widget.onChanged();
     widget.controller.selectedOption = t;
     widget.controller.isFieldChanged = true;
     setState(() {});
@@ -173,6 +180,7 @@ class _AppSwitchFieldState extends State<AppSwitchField> {
   _onChanged(bool value) {
     widget.controller.isSelected = value;
     widget.controller.isFieldChanged = true;
+    if (widget.controller.onChanged != null) widget.controller.onChanged();
     setState(() {});
   }
 }
