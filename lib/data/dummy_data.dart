@@ -1,4 +1,12 @@
+import 'dart:convert';
+
+import 'package:fabric_form_flutter/data/model.dart';
+
 class DummyData {
+  static getDefaultModel() {
+    return Garment.fromJson(json.decode(jsonData));
+  }
+
   static const String jsonData = '''
     {
       "fabrics": [

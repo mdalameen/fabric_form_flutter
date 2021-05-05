@@ -12,9 +12,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fabric Dyanmic Form',
       theme: ThemeData(
-          appBarTheme: AppBarTheme(brightness: Brightness.dark),
-          primarySwatch: Colors.blue,
-          primaryColor: Colors.blue.shade900),
+          appBarTheme: AppBarTheme(brightness: Brightness.light),
+          primarySwatch: Colors.yellow,
+          primaryColor: Colors.white),
       home: HomePage(),
     );
   }

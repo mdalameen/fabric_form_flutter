@@ -1,4 +1,5 @@
 import 'package:fabric_form_flutter/app_preference.dart';
+import 'package:fabric_form_flutter/data/dummy_data.dart';
 import 'package:fabric_form_flutter/data/model.dart';
 import 'package:fabric_form_flutter/pages/add_page.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _onAddPressed() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => AddPage()));
+  _onAddPressed([Garment data]) async {
+    int removeIndex;
+    if (data != null) removeIndex = garments.indexOf(data);
+    Garment garment = data ?? DummyData.getDefaultModel();
+    Garment updatedGarment = await Navigator.push(
+        context, MaterialPageRoute(builder: (_) => AddPage(garment)));
+    if (updatedGarment != null) {
+      if (removeIndex != null) {
+        garments.removeAt(removeIndex);
+      }
+      garments.insert(0, updatedGarment);
+      AppPreference.setGarments(garments);
+      setState(() {});
+    }
   }
 
   Widget _buildEmptyView() {
@@ -73,6 +86,7 @@ class _HomePageState extends State<HomePage> {
     return ListView.builder(
       itemCount: garments.length,
       itemBuilder: (_, index) => ListTile(
+        onTap: () => _onAddPressed(),
         title:
             _buildItemList('Fabric : ', garments[index].fabrics, (e) => e.name),
         subtitle: _buildItemList(

@@ -15,6 +15,14 @@ class Garment {
     this.extraCosts,
   );
 
+  Garment.copy(Garment garment)
+      : fabrics = Fabric.copyList(garment.fabrics),
+        patterns = Pattern.copyList(garment.patterns),
+        accesories = NameCostPair.copyList(garment.accesories),
+        productionCosts = NameCostPair.copyList(garment.productionCosts),
+        taxes = NamePercentPair.copyList(garment.taxes),
+        extraCosts = NameCostPair.copyList(garment.extraCosts);
+
   Garment.fromJson(Map<String, dynamic> map)
       : fabrics = Fabric.getList(map['fabrics']),
         patterns = Pattern.getList(map['patterns']),
@@ -62,6 +70,12 @@ class Fabric {
         'cost': cost,
       };
 
+  static List<Fabric> copyList(List<Fabric> list) {
+    List<Fabric> nList = [];
+    list.map((e) => nList.add(Fabric(e.type, e.name, e.width, e.mass, e.cost)));
+    return nList;
+  }
+
   static List<Fabric> getList(List list) =>
       _getList(list, (map) => Fabric.fromJson(map));
 
@@ -89,6 +103,13 @@ class Pattern {
         'edges': NameValuePair.getJsonList(edges)
       };
 
+  static List<Pattern> copyList(List<Pattern> list) {
+    List<Pattern> nList = [];
+    list.map((e) => nList.add(Pattern(
+        e.name, e.fabric, e.areaType, NameValuePair.copyList(e.edges))));
+    return nList;
+  }
+
   static List<Pattern> getList(List list) =>
       _getList(list, (map) => Pattern.fromJson(map));
 
@@ -109,6 +130,12 @@ class NameValuePair {
         'name': name,
         'value': value,
       };
+
+  static List<NameValuePair> copyList(List<NameValuePair> list) {
+    List<NameValuePair> nList = [];
+    list.map((e) => nList.add(NameValuePair(e.name, e.value)));
+    return nList;
+  }
 
   static List<NameValuePair> getList(List list) =>
       _getList(list, (map) => NameValuePair.fromJson(map));
@@ -131,6 +158,12 @@ class NameCostPair {
         'cost': value,
       };
 
+  static List<NameCostPair> copyList(List<NameCostPair> list) {
+    List<NameCostPair> nList = [];
+    list.map((e) => nList.add(NameCostPair(e.name, e.value)));
+    return nList;
+  }
+
   static List<NameCostPair> getList(List list) =>
       _getList(list, (map) => NameCostPair.fromJson(map));
 
@@ -151,6 +184,12 @@ class NamePercentPair {
         'name': name,
         'percentage': value,
       };
+
+  static List<NamePercentPair> copyList(List<NamePercentPair> list) {
+    List<NamePercentPair> nList = [];
+    list.map((e) => nList.add(NamePercentPair(e.name, e.value)));
+    return nList;
+  }
 
   static List<NamePercentPair> getList(List list) =>
       _getList(list, (map) => NamePercentPair.fromJson(map));
