@@ -5,6 +5,7 @@ import 'package:fabric_form_flutter/components/form/app_controllers.dart';
 import 'package:flutter/material.dart';
 
 import './data/model.dart';
+import 'components/app_alert_popup.dart';
 import 'components/form/form_helper.dart';
 
 class GarmentProcessor {
@@ -45,21 +46,8 @@ class GarmentProcessor {
         _PairWrapper.nameCost(extraCost, onStateChanged));
   }
 
-  _displayAlertDialog(String title, String content) {
-    showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(title),
-              content: Text(content),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Ok',
-                      style: TextStyle(color: AppColors.blue),
-                    ))
-              ],
-            ));
+  _displayAlertDialog(String content) {
+    AppAlertPopup.error(context, content);
   }
 
   _addFabric() {
@@ -69,7 +57,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deleteFabric(Fabric fabric) {
+  _deleteFabric(Fabric fabric) async {
+    bool isOk = await AppAlertPopup.confirm(
+        context, 'Do you want to delete Fabric item?');
+    if (!isOk) return;
     bool isUsing = false;
     for (var v in data.patterns) {
       isUsing = v.fabric == fabric.name;
@@ -77,7 +68,7 @@ class GarmentProcessor {
     }
 
     if (isUsing) {
-      _displayAlertDialog('Cannot delete', 'This field is used by pattern');
+      _displayAlertDialog('Cannot delete, this field is used by pattern');
       return;
     }
 
@@ -95,7 +86,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deleteEdge(Pattern pattern, NameValuePair edge) {
+  _deleteEdge(Pattern pattern, NameValuePair edge) async {
+    bool isOk = await AppAlertPopup.confirm(
+        context, 'Do you want to delete Edge item?');
+    if (!isOk) return;
     final pWrapper = _patternControllers[pattern];
     final eWrapper = pWrapper.edgesController[edge];
     eWrapper.dispose();
@@ -112,7 +106,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deletePattern(Pattern pattern) {
+  _deletePattern(Pattern pattern) async {
+    bool isOk = await AppAlertPopup.confirm(
+        context, 'Do you want to delete Pattern item?');
+    if (!isOk) return;
     final pWrapper = _patternControllers[pattern];
     for (var eWrapper in pWrapper.edgesController.values) eWrapper.dispose();
     pWrapper.dispose();
@@ -127,7 +124,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deleteAccesory(NameCostPair pair) {
+  _deleteAccesory(NameCostPair pair) async {
+    bool isOk = await AppAlertPopup.confirm(
+        context, 'Do you want to delete Accesory item?');
+    if (!isOk) return;
     final w = _accesoriesController[pair];
     w.dispose();
     _accesoriesController.remove(pair);
@@ -142,7 +142,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deleteProductionCost(NameCostPair pair) {
+  _deleteProductionCost(NameCostPair pair) async {
+    bool isOk = await AppAlertPopup.confirm(
+        context, 'Do you want to delete Product Cost item?');
+    if (!isOk) return;
     final w = _productionCostController[pair];
     w.dispose();
     _productionCostController.remove(pair);
@@ -157,7 +160,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deleteTax(NamePercentPair tax) {
+  _deleteTax(NamePercentPair tax) async {
+    bool isOk =
+        await AppAlertPopup.confirm(context, 'Do you want to delete Tax item?');
+    if (!isOk) return;
     final w = _taxesController[tax];
     w.dispose();
     _taxesController.remove(tax);
@@ -172,7 +178,10 @@ class GarmentProcessor {
     onStateChanged();
   }
 
-  _deleteExtraCost(NameCostPair extraCost) {
+  _deleteExtraCost(NameCostPair extraCost) async {
+    bool isOk = await AppAlertPopup.confirm(
+        context, 'Do you want to delete Extra Cost item?');
+    if (!isOk) return;
     final w = _extraCostController[extraCost];
     w.dispose();
     _extraCostController.remove(extraCost);
@@ -355,8 +364,7 @@ class GarmentProcessor {
                       shape: BoxShape.circle,
                       color: AppColors.white,
                       boxShadow: shadows),
-                  child: Icon(Icons.remove_circle_outline_sharp,
-                      color: AppColors.red)),
+                  child: Icon(Icons.cancel_outlined, color: AppColors.red)),
               onTap: onDeleted),
         )
       ],
@@ -462,8 +470,7 @@ class GarmentProcessor {
   bool validate() {
     if (!FormHelper.validate(context, _getFabricControllers())) {
       onStateChanged();
-      _displayAlertDialog(
-          'Invalid Data', 'Please check value in Fabric section');
+      _displayAlertDialog('Invalid Data, Please check value in Fabric section');
       return false;
     }
 
@@ -473,7 +480,7 @@ class GarmentProcessor {
       if (fs.contains(name)) {
         f.nameController.errorMessage = 'duplicate value found';
         _displayAlertDialog(
-            'Invalid Data', 'Please check value in Fabric section');
+            'Invalid Data, Please check value in Fabric section');
         onStateChanged();
         return false;
       }
@@ -483,35 +490,34 @@ class GarmentProcessor {
     if (!FormHelper.validate(context, _getPatternsController())) {
       onStateChanged();
       _displayAlertDialog(
-          'Invalid Data', 'Please check value in Pattern section');
+          'Invalid Data, Please check value in Pattern section');
       return false;
     }
 
     if (!FormHelper.validate(context, _getAccesoriesControllers())) {
       onStateChanged();
       _displayAlertDialog(
-          'Invalid Data', 'Please check value in Accesories section');
+          'Invalid Data, Please check value in Accesories section');
       return false;
     }
 
     if (!FormHelper.validate(context, _getProductionControllers())) {
       onStateChanged();
       _displayAlertDialog(
-          'Invalid Data', 'Please check value in Production Cost section');
+          'Invalid Data, Please check value in Production Cost section');
       return false;
     }
 
     if (!FormHelper.validate(context, _getTaxesControllers())) {
       onStateChanged();
-      _displayAlertDialog(
-          'Invalid Data', 'Please check value in Taxes section');
+      _displayAlertDialog('Invalid Data, Please check value in Taxes section');
       return false;
     }
 
     if (!FormHelper.validate(context, _getExtrasControllers())) {
       onStateChanged();
       _displayAlertDialog(
-          'Invalid Data', 'Please check value in Extra Cost section');
+          'Invalid Data, Please check value in Extra Cost section');
       return false;
     }
     onStateChanged();
