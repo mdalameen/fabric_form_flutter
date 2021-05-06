@@ -47,7 +47,7 @@ class Garment {
 }
 
 class Fabric {
-  bool type;
+  int type;
   String name;
   double width;
   double mass;
@@ -56,7 +56,7 @@ class Fabric {
   Fabric(this.type, this.name, this.width, this.mass, this.cost);
 
   Fabric.fromJson(Map<String, dynamic> map)
-      : type = DataUtil.getBool(map['type']),
+      : type = DataUtil.getInt(map['type']),
         name = map['name'],
         width = DataUtil.getDouble(map['width']),
         mass = DataUtil.getDouble(map['mass']),
@@ -90,7 +90,7 @@ class Fabric {
 class Pattern {
   String name;
   String fabric;
-  bool areaType;
+  int areaType;
   List<NameValuePair> edges;
 
   Pattern(this.name, this.fabric, this.areaType, this.edges);
@@ -98,7 +98,7 @@ class Pattern {
   Pattern.fromJson(Map<String, dynamic> map)
       : name = map['name'],
         fabric = map['fabric'],
-        areaType = DataUtil.getBool(map['area_type']),
+        areaType = DataUtil.getInt(map['area_type']),
         edges = NameValuePair.getList(map['edges']);
 
   Map<String, dynamic> toJson() => {

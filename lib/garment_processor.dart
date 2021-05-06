@@ -63,7 +63,7 @@ class GarmentProcessor {
   }
 
   _addFabric() {
-    final f = Fabric(data.fabrics.isEmpty, '', 0, 0, 0);
+    final f = Fabric(0, '', 0, 0, 0);
     data.fabrics.add(f);
     _fabricControllers[f] = _FabricWrapper(f, onStateChanged);
     onStateChanged();
@@ -106,9 +106,7 @@ class GarmentProcessor {
 
   _addPattern() {
     final p = Pattern(
-        "",
-        data.fabrics.isNotEmpty ? data.fabrics.first.name : null,
-        data.patterns.isEmpty, []);
+        "", data.fabrics.isNotEmpty ? data.fabrics.first.name : null, 0, []);
     data.patterns.add(p);
     _patternControllers[p] = _PatternWrapper(p, data.fabrics, onStateChanged);
     onStateChanged();
@@ -203,11 +201,15 @@ class GarmentProcessor {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      w.nameController.buildWidget(),
-                      _dualWidget(w.massController.buildWidget(),
-                          w.widthController.buildWidget()),
-                      _dualWidget(w.costController.buildWidget(),
-                          w.typeController.buildWidget()),
+                      w.nameController.buildWidget(addPadding: false),
+                      SizedBox(height: 10),
+                      _dualWidget(
+                          w.massController.buildWidget(addPadding: false),
+                          w.widthController.buildWidget(addPadding: false)),
+                      SizedBox(height: 10),
+                      _dualWidget(
+                          w.costController.buildWidget(addPadding: false),
+                          w.typeController.buildWidget(addPadding: false)),
                     ],
                   ), () {
                 _deleteFabric(f);
@@ -224,9 +226,12 @@ class GarmentProcessor {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      w.nameController.buildWidget(),
-                      _dualWidget(w.fabricController.buildWidget(),
-                          w.typeController.buildWidget()),
+                      w.nameController.buildWidget(addPadding: false),
+                      SizedBox(height: 10),
+                      _dualWidget(
+                          w.fabricController.buildWidget(addPadding: false),
+                          w.typeController.buildWidget(addPadding: false)),
+                      SizedBox(height: 10),
                       _buildNameValueWrapper(
                           'Edge',
                           List.generate(p.edges.length, (index) {
@@ -238,8 +243,10 @@ class GarmentProcessor {
                                       CrossAxisAlignment.stretch,
                                   children: <Widget>[
                                     _dualWidget(
-                                      n.nameController.buildWidget(),
-                                      n.valueController.buildWidget(),
+                                      n.nameController
+                                          .buildWidget(addPadding: false),
+                                      n.valueController
+                                          .buildWidget(addPadding: false),
                                     )
                                   ],
                                 ),
@@ -289,8 +296,8 @@ class GarmentProcessor {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _dualWidget(w.nameController.buildWidget(),
-                        w.valueController.buildWidget()),
+                    _dualWidget(w.nameController.buildWidget(addPadding: false),
+                        w.valueController.buildWidget(addPadding: false)),
                   ],
                 ),
                 () => onDeletePressed(index));
@@ -301,6 +308,7 @@ class GarmentProcessor {
       String label, List<Widget> widgets, VoidCallback onAddPressed) {
     return Container(
       margin: EdgeInsets.all(10),
+      // padding: EdgeInsets.all(10),
       decoration: DottedDecoration(
           color: AppColors.grey,
           shape: Shape.box,
@@ -316,6 +324,7 @@ class GarmentProcessor {
     return Row(
       children: [
         Expanded(child: leftChild),
+        SizedBox(width: 10),
         Expanded(
           child: rightChild,
         )
@@ -329,6 +338,7 @@ class GarmentProcessor {
       children: [
         Container(
           margin: EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: AppColors.white,
@@ -528,16 +538,17 @@ String _numberValidator(String number) {
 }
 
 class _FabricWrapper {
-  AppSwitchController typeController;
+  AppSelectController typeController;
   AppTextController nameController;
   AppTextController widthController;
   AppTextController massController;
   AppTextController costController;
 
   _FabricWrapper(Fabric fabric, VoidCallback changeState) {
-    typeController = AppSwitchController(
+    typeController = AppSelectController(
         label: 'Type',
-        isSelected: fabric.type,
+        index: fabric.type,
+        options: <String>['WOOL', 'KNIT'],
         displayMandatory: false,
         isMandatory: true);
     typeController.onChanged = () {
@@ -596,16 +607,17 @@ class _FabricWrapper {
 }
 
 class _PatternWrapper {
-  AppSwitchController typeController;
+  AppSelectController typeController;
   AppTextController nameController;
   AppDropDownController<Fabric> fabricController;
   Map<NameValuePair, _PairWrapper> edgesController;
 
   _PatternWrapper(
       Pattern pattern, List<Fabric> fabrics, VoidCallback setStateChanged) {
-    typeController = AppSwitchController(
+    typeController = AppSelectController(
         label: 'Area Type',
-        isSelected: pattern.areaType,
+        index: pattern.areaType,
+        options: <String>['SOLID', 'STRIPE'],
         displayMandatory: false,
         isMandatory: true);
     typeController.onChanged = () {

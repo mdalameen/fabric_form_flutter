@@ -183,11 +183,12 @@ class AppDropDownController<T> extends BaseFormController<T> {
   }
 }
 
-class AppSwitchController extends BaseFormController<bool> {
-  bool isSelected;
+class AppSelectController extends BaseFormController<int> {
+  int index;
   bool isFieldChanged = false;
+  List<String> options;
 
-  AppSwitchController(
+  AppSelectController(
       {@required String label,
       TextEditingController controller,
       FocusNode focusNode,
@@ -195,7 +196,8 @@ class AppSwitchController extends BaseFormController<bool> {
       bool displayMandatory: true,
       bool isMandatory,
       bool enabled,
-      @required this.isSelected,
+      @required this.index,
+      @required this.options,
       VoidCallback onChanged,
       GlobalKey key,
       bool hideLabel})
@@ -211,12 +213,12 @@ class AppSwitchController extends BaseFormController<bool> {
 
   @override
   Widget buildWidget({bool addPadding: true, bool isEnabled: true}) {
-    return AppSwitchField(this, addPadding, isEnabled);
+    return AppSelectField(this, addPadding, isEnabled);
   }
 
   @override
-  bool getInput() {
-    return isSelected;
+  int getInput() {
+    return index;
   }
 
   @override
@@ -226,6 +228,6 @@ class AppSwitchController extends BaseFormController<bool> {
 
   @override
   bool isInputGiven() {
-    return isSelected != null;
+    return index != null;
   }
 }
